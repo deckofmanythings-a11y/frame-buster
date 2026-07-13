@@ -26,7 +26,6 @@
     </div>
 
     <h3>Background Removal</h3>
-    <p class="hint">Only affects the pop-out cutout &mdash; parts you paint to bust out of the ring. The token's base fill always shows your original art, so it's never see-through.</p>
     <button id="btnAutoRemove" class="btn btn-accent" disabled>✨ Auto Remove (AI)</button>
     <p id="autoRemoveStatus" class="status-text"></p>
 
@@ -90,6 +89,9 @@
 
     <h2>3. Bust Out of Frame</h2>
     <p class="hint">Paint the parts of your art (a sword, wing, horn&hellip;) that should pop out over the ring.</p>
+    <label class="field">
+      <span><input type="checkbox" id="includeOriginalBase" disabled> Include original image as lowest layer (use this if you want to include the original image's background if you removed it)</span>
+    </label>
     <div class="tool-row">
       <button id="toolPopoutPaint" class="btn tool-btn" data-tool="popout-paint" disabled>🖌️ Paint Pop-out</button>
       <button id="toolPopoutErase" class="btn tool-btn" data-tool="popout-erase" disabled>🧽 Erase Pop-out</button>

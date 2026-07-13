@@ -45,7 +45,7 @@ TF.onSourceReady = function () {
   [
     'btnAutoRemove', 'toolWand', 'toolErase', 'toolRestore',
     'toolPopoutPaint', 'toolPopoutErase', 'btnClearMask',
-    'btnExport', 'btnResetBg',
+    'btnExport', 'btnResetBg', 'includeOriginalBase',
   ].forEach((id) => { document.getElementById(id).disabled = false; });
 };
 
@@ -187,6 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('showMaskOverlay').addEventListener('change', (e) => {
     TF.state.showMaskOverlay = e.target.checked;
+    TF.requestPreviewRender();
+  });
+
+  document.getElementById('includeOriginalBase').addEventListener('change', (e) => {
+    TF.state.includeOriginalBase = e.target.checked;
     TF.requestPreviewRender();
   });
 

@@ -9,10 +9,11 @@ TF.CONFIG = {
 };
 
 TF.state = {
-  originalCanvas: null,      // pristine copy of upload, never mutated; always the base/inside-the-ring fill
+  originalCanvas: null,      // pristine copy of upload, never mutated; optional lowest base layer
   sourceCanvas: null,        // working portrait canvas w/ alpha edits, portrait-local space
   featheredCanvas: null,     // derived: sourceCanvas + alpha feather; always the pop-out cutout layer
   sourceLoaded: false,
+  includeOriginalBase: false, // draw the original (background intact) beneath the cutout, base layer only
 
   bgHistory: [],             // undo stack of ImageData snapshots of sourceCanvas
 

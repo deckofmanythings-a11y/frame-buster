@@ -45,23 +45,24 @@ TF.renderToken = async function (ctx, canvasPixelSize, opts) {
   const ringInfo = await TF.getRingRenderInfo(Math.round(tokenDiameter));
   const innerRatio = ringInfo.innerRatio;
 
-  // Two permanently-linked layers, both driven by the same transform matrix
-  // so they always pan/zoom/rotate together:
-  //  - basePortrait: the original art (background intact) so the inside of
-  //    the ring is never see-through, even where bg-removal zeroed alpha.
-  //  - popoutPortrait: the background-removed cutout, used only for the
-  //    parts the user paints to bust out past the ring, so those parts
-  //    don't drag a background-colored patch out past the frame with them.
-  const basePortrait = state.originalCanvas;
+  // popoutPortrait is always the background-removed cutout, used for the
+  // parts the user paints to bust out past the ring, so those parts don't
+  // drag a background-colored patch out past the frame with them.
   const popoutPortrait = state.featheredCanvas || state.sourceCanvas;
 
   // 1. Base layer, clipped to the ring's inner hole (token-relative, centered).
+  //    Optionally, the original art (background intact) draws first as a
+  //    lowest layer so removed-background gaps aren't see-through; the
+  //    bg-removed cutout always draws on top of it, same clip, same matrix.
   ctx.save();
   ctx.beginPath();
   ctx.arc(canvasPixelSize / 2, canvasPixelSize / 2, (tokenDiameter / 2) * innerRatio, 0, Math.PI * 2);
   ctx.clip();
   ctx.setTransform(m.a, m.b, m.c, m.d, m.e, m.f);
-  ctx.drawImage(basePortrait, 0, 0);
+  if (state.includeOriginalBase) {
+    ctx.drawImage(state.originalCanvas, 0, 0);
+  }
+  ctx.drawImage(popoutPortrait, 0, 0);
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.restore();
 
