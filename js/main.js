@@ -207,6 +207,33 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   updateFinalSizeHint();
 
+  // --- Save folder (smart FBToken<N>.png naming) -----------------------------
+  const btnChooseFolder = document.getElementById('btnChooseFolder');
+  const saveFolderStatus = document.getElementById('saveFolderStatus');
+
+  function describeSaveFolder() {
+    if (!TF.supportsFolderPicker) {
+      btnChooseFolder.style.display = 'none';
+      return "This browser can't scan a folder directly, but downloads still get numbered FBToken1, FBToken2… (counted per-browser).";
+    }
+    if (TF.folderHandle) {
+      return `Saving directly to "${TF.folderHandle.name}" — numbered after the highest FBToken# already there.`;
+    }
+    return "Not set — downloads go to your browser's default folder, numbered FBToken1, FBToken2… (counted per-browser).";
+  }
+  saveFolderStatus.textContent = describeSaveFolder();
+
+  btnChooseFolder.addEventListener('click', async () => {
+    try {
+      await TF.chooseSaveFolder();
+      saveFolderStatus.textContent = describeSaveFolder();
+    } catch (e) {
+      // user cancelled the picker
+    }
+  });
+
+  TF.restoreSaveFolder().then(() => { saveFolderStatus.textContent = describeSaveFolder(); });
+
   // --- Buttons ---------------------------------------------------------------
   document.getElementById('btnClearMask').addEventListener('click', () => TF.clearPopoutMask());
   document.getElementById('btnUndo').addEventListener('click', () => TF.undoBg());
@@ -221,7 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('btnExport');
     btn.disabled = true;
     try {
-      await TF.exportPNG();
+      const result = await TF.exportPNG();
+      saveFolderStatus.textContent = result.savedToFolder
+        ? `Saved ${result.filename} to "${TF.folderHandle.name}".`
+        : `Downloaded ${result.filename}.`;
+      setTimeout(() => { saveFolderStatus.textContent = describeSaveFolder(); }, 3000);
     } finally {
       btn.disabled = false;
     }

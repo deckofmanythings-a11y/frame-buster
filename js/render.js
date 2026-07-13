@@ -121,6 +121,11 @@ TF.requestPreviewRender = function () {
   });
 };
 
+// Exports the current token as FBToken<N>.png, where N is one higher than
+// the highest FBToken<N>.png already present. If a save folder has been
+// chosen (see save-folder.js) and permission is granted, the file is
+// written straight into it and N is computed by scanning its contents;
+// otherwise it falls back to a normal download with a per-browser counter.
 TF.exportPNG = async function () {
   const size = TF.getExportCanvasSize();
   const canvas = document.createElement('canvas');
@@ -128,17 +133,27 @@ TF.exportPNG = async function () {
   canvas.height = size;
   const ctx = canvas.getContext('2d');
   await TF.renderToken(ctx, size, { showMaskOverlay: false });
-  return new Promise((resolve) => {
-    canvas.toBlob((blob) => {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `frame-buster-${Date.now()}.png`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(url), 4000);
-      resolve();
-    }, 'image/png');
-  });
+  const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+
+  const folderReady = TF.folderHandle ? await TF.ensureFolderPermission() : false;
+  const filename = await TF.getNextTokenFilename(folderReady);
+
+  if (folderReady) {
+    try {
+      await TF.saveBlobToFolder(blob, filename);
+      return { filename, savedToFolder: true };
+    } catch (e) {
+      // fall through to a normal download below
+    }
+  }
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  return { filename, savedToFolder: false };
 };
