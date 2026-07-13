@@ -190,6 +190,23 @@ document.addEventListener('DOMContentLoaded', () => {
     TF.requestPreviewRender();
   });
 
+  // --- Output size (token size + padding) ------------------------------------
+  function updateFinalSizeHint() {
+    const size = TF.getExportCanvasSize();
+    document.getElementById('finalSizeHint').textContent = `Final image: ${size} × ${size}px`;
+  }
+  document.getElementById('tokenSizeSelect').addEventListener('change', (e) => {
+    TF.state.output.tokenSize = parseInt(e.target.value, 10);
+    updateFinalSizeHint();
+    TF.requestPreviewRender();
+  });
+  wireSlider('canvasPadding', 'paddingOut', (v) => {
+    TF.state.output.canvasPadding = v;
+    updateFinalSizeHint();
+    TF.requestPreviewRender();
+  });
+  updateFinalSizeHint();
+
   // --- Buttons ---------------------------------------------------------------
   document.getElementById('btnClearMask').addEventListener('click', () => TF.clearPopoutMask());
   document.getElementById('btnUndo').addEventListener('click', () => TF.undoBg());
@@ -201,11 +218,10 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.getElementById('btnExport').addEventListener('click', async () => {
-    const size = parseInt(document.getElementById('exportSize').value, 10);
     const btn = document.getElementById('btnExport');
     btn.disabled = true;
     try {
-      await TF.exportPNG(size);
+      await TF.exportPNG();
     } finally {
       btn.disabled = false;
     }

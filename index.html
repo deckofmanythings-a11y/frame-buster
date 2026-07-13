@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Token Forge &mdash; VTT Token Art Maker</title>
+<title>Frame Buster &mdash; VTT Token Art Maker</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
 <header class="app-header">
-  <h1>Token Forge</h1>
+  <h1>Frame Buster</h1>
   <p class="tagline">Build VTT tokens with backgrounds removed, framed rings, and art that busts out of the frame.</p>
 </header>
 
@@ -26,6 +26,7 @@
     </div>
 
     <h3>Background Removal</h3>
+    <p class="hint">Only affects the pop-out cutout &mdash; parts you paint to bust out of the ring. The token's base fill always shows your original art, so it's never see-through.</p>
     <button id="btnAutoRemove" class="btn btn-accent" disabled>✨ Auto Remove (AI)</button>
     <p id="autoRemoveStatus" class="status-text"></p>
 
@@ -100,14 +101,20 @@
 
     <h2>4. Export</h2>
     <label class="field">
-      <span>Resolution</span>
-      <select id="exportSize">
-        <option value="256">256 &times; 256 (small)</option>
-        <option value="512" selected>512 &times; 512 (standard)</option>
-        <option value="1024">1024 &times; 1024 (high-res)</option>
-        <option value="2048">2048 &times; 2048 (max)</option>
+      <span>Token Size</span>
+      <select id="tokenSizeSelect">
+        <option value="256">256px</option>
+        <option value="512" selected>512px (standard)</option>
+        <option value="1024">1024px (high-res)</option>
+        <option value="2048">2048px (max)</option>
       </select>
     </label>
+    <label class="field">
+      <span>Canvas Padding <output id="paddingOut">0</output>px</span>
+      <input type="range" id="canvasPadding" min="0" max="512" step="64" value="0">
+    </label>
+    <p class="hint">Extra transparent margin around the ring so pop-out art can extend beyond the frame edge. Increases final image resolution.</p>
+    <p class="hint" id="finalSizeHint">Final image: 512 &times; 512px</p>
     <button id="btnExport" class="btn btn-accent" disabled>⬇ Download PNG</button>
   </section>
 

@@ -190,7 +190,7 @@ html, body {
   background-size: 24px 24px;
   background-position: 0 0, 0 12px, 12px -12px, -12px 0px;
   background-color: #1a1b22;
-  border-radius: 50%;
+  border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--border-c);
   touch-action: none;
