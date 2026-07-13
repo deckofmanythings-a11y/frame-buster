@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Token Forge &mdash; VTT Token Art Maker</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="app-header">
+  <h1>Token Forge</h1>
+  <p class="tagline">Build VTT tokens with backgrounds removed, framed rings, and art that busts out of the frame.</p>
+</header>
+
+<main class="app-layout">
+
+  <!-- LEFT PANEL: Upload + Background Removal -->
+  <section class="panel panel-left">
+    <h2>1. Art</h2>
+
+    <div id="dropzone" class="dropzone">
+      <p><strong>Drop image here</strong> or click to browse</p>
+      <p class="hint">JPG, PNG, GIF, WEBP</p>
+      <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp" hidden>
+    </div>
+
+    <h3>Background Removal</h3>
+    <button id="btnAutoRemove" class="btn btn-accent" disabled>✨ Auto Remove (AI)</button>
+    <p id="autoRemoveStatus" class="status-text"></p>
+
+    <div class="tool-row">
+      <button id="toolWand" class="btn tool-btn" data-tool="wand" disabled>🪄 Magic Wand</button>
+      <button id="toolErase" class="btn tool-btn" data-tool="erase" disabled>🧹 Erase Brush</button>
+      <button id="toolRestore" class="btn tool-btn" data-tool="restore" disabled>♻️ Restore Brush</button>
+    </div>
+
+    <label class="field">
+      <span>Wand Tolerance <output id="toleranceOut">30</output></span>
+      <input type="range" id="tolerance" min="1" max="100" value="30">
+    </label>
+    <label class="field">
+      <span>Brush Size <output id="brushSizeOut">40</output>px</span>
+      <input type="range" id="brushSize" min="5" max="200" value="40">
+    </label>
+    <label class="field">
+      <span>Edge Softness <output id="featherOut">2</output>px</span>
+      <input type="range" id="feather" min="0" max="15" value="2" step="0.5">
+    </label>
+
+    <button id="btnUndo" class="btn" disabled>↶ Undo</button>
+    <button id="btnResetBg" class="btn" disabled>Reset to Original</button>
+  </section>
+
+  <!-- CENTER: Live Preview -->
+  <section class="panel panel-center">
+    <h2>Preview</h2>
+    <div class="canvas-wrap">
+      <canvas id="previewCanvas" width="640" height="640"></canvas>
+      <div id="canvasEmptyHint" class="canvas-empty-hint">Upload art to begin</div>
+    </div>
+
+    <div class="tool-row" id="transformTools">
+      <button id="toolTransform" class="btn tool-btn active" data-tool="transform">✥ Pan / Zoom</button>
+      <span class="hint">Drag to pan &middot; Scroll to zoom</span>
+    </div>
+    <label class="field">
+      <span>Rotation <output id="rotationOut">0</output>&deg;</span>
+      <input type="range" id="rotation" min="-180" max="180" value="0">
+    </label>
+    <button id="btnResetTransform" class="btn">Reset Position</button>
+  </section>
+
+  <!-- RIGHT PANEL: Ring + Pop-out + Export -->
+  <section class="panel panel-right">
+    <h2>2. Frame Ring</h2>
+    <div id="ringGallery" class="ring-gallery"></div>
+
+    <label class="btn btn-outline file-btn">
+      Upload Custom Ring
+      <input type="file" id="ringFileInput" accept=".png,.jpg,.jpeg,.webp,.svg,image/*" hidden>
+    </label>
+    <button id="btnNoRing" class="btn btn-outline">No Ring</button>
+
+    <label class="field">
+      <span>Inner Hole Size <output id="innerRatioOut">78</output>%</span>
+      <input type="range" id="innerRatio" min="40" max="98" value="78">
+    </label>
+
+    <h2>3. Bust Out of Frame</h2>
+    <p class="hint">Paint the parts of your art (a sword, wing, horn&hellip;) that should pop out over the ring.</p>
+    <div class="tool-row">
+      <button id="toolPopoutPaint" class="btn tool-btn" data-tool="popout-paint" disabled>🖌️ Paint Pop-out</button>
+      <button id="toolPopoutErase" class="btn tool-btn" data-tool="popout-erase" disabled>🧽 Erase Pop-out</button>
+    </div>
+    <label class="field">
+      <span><input type="checkbox" id="showMaskOverlay" checked> Show pop-out area (red overlay)</span>
+    </label>
+    <button id="btnClearMask" class="btn" disabled>Clear Pop-out Mask</button>
+
+    <h2>4. Export</h2>
+    <label class="field">
+      <span>Resolution</span>
+      <select id="exportSize">
+        <option value="256">256 &times; 256 (small)</option>
+        <option value="512" selected>512 &times; 512 (standard)</option>
+        <option value="1024">1024 &times; 1024 (high-res)</option>
+        <option value="2048">2048 &times; 2048 (max)</option>
+      </select>
+    </label>
+    <button id="btnExport" class="btn btn-accent" disabled>⬇ Download PNG</button>
+  </section>
+
+</main>
+
+<footer class="app-footer">
+  <p>Everything runs locally in your browser. Auto Remove (AI) fetches a model from a CDN on first use; all other tools work fully offline.</p>
+</footer>
+
+<script src="js/state.js"></script>
+<script src="js/rings.js"></script>
+<script src="js/render.js"></script>
+<script src="js/upload.js"></script>
+<script src="js/bg-removal.js"></script>
+<script src="js/transform-tool.js"></script>
+<script src="js/popout.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
