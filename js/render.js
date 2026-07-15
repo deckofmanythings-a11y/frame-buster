@@ -40,9 +40,8 @@ TF.renderToken = async function (ctx, canvasPixelSize, opts) {
   if (!state.sourceLoaded) return;
 
   const tokenDiameter = canvasPixelSize * TF.getTokenRatio();
-  const tokenOffset = (canvasPixelSize - tokenDiameter) / 2;
   const m = TF.getPortraitMatrix(canvasPixelSize);
-  const ringInfo = await TF.getRingRenderInfo(Math.round(tokenDiameter));
+  const ringInfo = await TF.getRingRenderInfo(tokenDiameter);
   const innerRatio = ringInfo.innerRatio;
 
   // popoutPortrait is always the background-removed cutout, used for the
@@ -66,9 +65,13 @@ TF.renderToken = async function (ctx, canvasPixelSize, opts) {
   ctx.setTransform(1, 0, 0, 1, 0, 0);
   ctx.restore();
 
-  // 2. Ring frame art on top, drawn at token size, centered in the canvas.
+  // 2. Ring frame art on top, drawn at its real rendered size (drawSize may
+  //    be slightly larger than tokenDiameter for built-in SVG rings, so
+  //    their actual outer edge lands exactly on tokenDiameter -- see
+  //    RING_SVG_OUTER_RATIO in rings.js), centered in the canvas.
   if (ringInfo.image) {
-    ctx.drawImage(ringInfo.image, tokenOffset, tokenOffset, tokenDiameter, tokenDiameter);
+    const ringOffset = (canvasPixelSize - ringInfo.drawSize) / 2;
+    ctx.drawImage(ringInfo.image, ringOffset, ringOffset, ringInfo.drawSize, ringInfo.drawSize);
   }
 
   // 3. Pop-out layer: the bg-removed cutout, masked by the user-painted

@@ -13,6 +13,15 @@ TF.RING_STYLES = {
 
 TF.RING_ORDER = ['iron', 'bronze', 'silver', 'gold', 'crimson', 'nature', 'arcane', 'simple'];
 
+// generateRingSVG draws its outer circle at radius 245 within a 500-unit
+// viewBox (250 = half-width), leaving a small margin so the outer bevel
+// stroke doesn't get clipped at the SVG edge. That means the ring's actual
+// rendered outer edge sits at 245/250 = 0.98 of the image's half-size, not
+// the full half-size. getRingRenderInfo uses this to size/center the draw
+// so the ring's real outer edge (and therefore its hole) lands exactly on
+// the token's own radius instead of slightly inside it.
+TF.RING_SVG_OUTER_RATIO = 245 / 250;
+
 // Builds an SVG string for a ring style at a given pixel size, with a hole
 // cut at innerRatio (0-1, fraction of outer radius).
 TF.generateRingSVG = function (styleId, size, innerRatio) {
@@ -98,18 +107,24 @@ TF.rasterizeSVG = function (svgString, size) {
 
 TF._ringCache = {};
 
-// Returns { image, innerRatio } for the currently selected ring, rasterized at `size`.
-TF.getRingRenderInfo = async function (size) {
+// Returns { image, innerRatio, drawSize } for the currently selected ring,
+// where drawSize is the width/height (centered in the token) to draw the
+// image at so its *actual* rendered outer edge lands exactly on
+// tokenDiameter, keeping it consistent with the base portrait's clip circle
+// (which is computed directly from tokenDiameter and innerRatio).
+TF.getRingRenderInfo = async function (tokenDiameter) {
   const ring = TF.state.ring;
   const innerRatio = ring.innerRatio;
-  if (ring.kind === 'none') return { image: null, innerRatio };
+  if (ring.kind === 'none') return { image: null, innerRatio, drawSize: tokenDiameter };
   if (ring.kind === 'custom' && ring.customImage) {
-    return { image: ring.customImage, innerRatio };
+    return { image: ring.customImage, innerRatio, drawSize: tokenDiameter };
   }
-  const key = ring.builtinId + '_' + size + '_' + innerRatio.toFixed(3);
-  if (TF._ringCache[key]) return { image: TF._ringCache[key], innerRatio };
-  const svg = TF.generateRingSVG(ring.builtinId, size, innerRatio);
-  const img = await TF.rasterizeSVG(svg, size);
+  const drawSize = tokenDiameter / TF.RING_SVG_OUTER_RATIO;
+  const rasterSize = Math.round(drawSize);
+  const key = ring.builtinId + '_' + rasterSize + '_' + innerRatio.toFixed(3);
+  if (TF._ringCache[key]) return { image: TF._ringCache[key], innerRatio, drawSize };
+  const svg = TF.generateRingSVG(ring.builtinId, rasterSize, innerRatio);
+  const img = await TF.rasterizeSVG(svg, rasterSize);
   TF._ringCache[key] = img;
-  return { image: img, innerRatio };
+  return { image: img, innerRatio, drawSize };
 };
